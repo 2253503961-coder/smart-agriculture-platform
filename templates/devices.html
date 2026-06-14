@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}设备控制 - 智慧农业监控系统{% endblock %}
+{% block page_title %}智能设备控制{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-medium">自动控制设置</h3>
+        <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" id="auto-control-toggle" {% if auto_control %}checked{% endif %}>
+            <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-primary"></div>
+            <span class="ml-3 text-sm font-medium">启用智能自动控制</span>
+        </label>
+    </div>
+    <p class="text-sm text-gray-500 mt-1">启用后系统将根据环境数据自动控制设备运行</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-xl p-6 card-shadow text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa fa-tint text-2xl text-blue-500"></i>
+        </div>
+        <h3 class="font-semibold mb-2">灌溉系统</h3>
+        <p class="text-sm text-gray-500 mb-4">控制农田灌溉</p>
+        <div class="inline-block">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer device-toggle" data-device="irrigation" {% if devices.irrigation %}checked{% endif %}>
+                <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+        </div>
+        <p class="mt-4 text-xs text-gray-500">最后操作: 今天 08:30</p>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 card-shadow text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa fa-refresh text-2xl text-green-500"></i>
+        </div>
+        <h3 class="font-semibold mb-2">通风系统</h3>
+        <p class="text-sm text-gray-500 mb-4">调节温室通风</p>
+        <div class="inline-block">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer device-toggle" data-device="ventilation" {% if devices.ventilation %}checked{% endif %}>
+                <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+        </div>
+        <p class="mt-4 text-xs text-gray-500">最后操作: 昨天 15:45</p>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 card-shadow text-center">
+        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa fa-lightbulb-o text-2xl text-yellow-500"></i>
+        </div>
+        <h3 class="font-semibold mb-2">照明系统</h3>
+        <p class="text-sm text-gray-500 mb-4">控制植物补光</p>
+        <div class="inline-block">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer device-toggle" data-device="lighting" {% if devices.lighting %}checked{% endif %}>
+                <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+        </div>
+        <p class="mt-4 text-xs text-gray-500">最后操作: 今天 06:15</p>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 card-shadow text-center">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa fa-flask text-2xl text-purple-500"></i>
+        </div>
+        <h3 class="font-semibold mb-2">施肥系统</h3>
+        <p class="text-sm text-gray-500 mb-4">自动施肥控制</p>
+        <div class="inline-block">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer device-toggle" data-device="fertilizer_pump" {% if devices.fertilizer_pump %}checked{% endif %}>
+                <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+        </div>
+        <p class="mt-4 text-xs text-gray-500">最后操作: 3天前</p>
+    </div>
+</div>
+
+<div class="bg-white rounded-xl p-6 card-shadow">
+    <h3 class="font-semibold text-lg mb-6">智能决策日志</h3>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">时间</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">原因</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="decision-logs-table">
+                {% for log in decision_logs | reverse %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ log.time }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">{{ log.action }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ log.reason }}</td>
+                </tr>
+                {% endfor %}
+                {% if not decision_logs %}
+                <tr>
+                    <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">暂无决策记录</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 设备控制
+    document.querySelectorAll('.device-toggle').forEach(toggle => {
+        toggle.addEventListener('change', async function() {
+            const device = this.getAttribute('data-device');
+            const state = this.checked;
+
+            try {
+                const response = await fetch('/api/control-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ device, state })
+                });
+
+                if (!response.ok) {
+                    throw new Error('控制设备失败');
+                }
+            } catch (error) {
+                console.error('设备控制错误:', error);
+                this.checked = !state; // 恢复状态
+            }
+        });
+    });
+
+    // 自动控制切换
+    document.getElementById('auto-control-toggle').addEventListener('change', async function() {
+        try {
+            await fetch('/api/toggle-auto-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (error) {
+            console.error('切换自动控制失败:', error);
+            this.checked = !this.checked; // 恢复状态
+        }
+    });
+
+    // 定时更新决策日志
+    setInterval(async () => {
+        try {
+            const response = await fetch('/api/decision-logs');
+            const logs = await response.json();
+
+            const tableBody = document.getElementById('decision-logs-table');
+            tableBody.innerHTML = '';
+
+            if (logs.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">暂无决策记录</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // 倒序显示最新的日志在前
+            for (const log of logs.reverse()) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.time}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">${log.action}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${log.reason}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        } catch (error) {
+            console.error('更新决策日志失败:', error);
+        }
+    }, 5000);
+</script>
+{% endblock %}

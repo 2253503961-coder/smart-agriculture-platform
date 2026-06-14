@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>实时目标检测</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 1000px;
+        }
+        h1 {
+            color: #333;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #video-container {
+            border: 5px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #000;
+            display: inline-block;
+        }
+        #video-stream {
+            width: 100%;
+            max-width: 960px;
+        }
+        .status {
+            margin: 10px 0;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>实时目标检测</h1>
+        <div class="status">状态: 未开始</div>
+        <div class="controls">
+            <button id="start-btn">开始检测</button>
+            <button id="stop-btn" disabled>停止检测</button>
+        </div>
+        <div id="video-container">
+            <img id="video-stream" src="" alt="目标检测视频流">
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const videoStream = document.getElementById('video-stream');
+        const statusElement = document.querySelector('.status');
+        
+        // 开始检测
+        startBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/detection/start');
+                if (response.ok) {
+                    videoStream.src = '/detection/video_feed';
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    statusElement.textContent = '状态: 正在检测';
+                }
+            } catch (error) {
+                console.error('启动检测失败:', error);
+            }
+        });
+        
+        // 停止检测
+        stopBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/detection/stop');
+                if (response.ok) {
+                    videoStream.src = '';
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    statusElement.textContent = '状态: 已停止';
+                }
+            } catch (error) {
+                console.error('停止检测失败:', error);
+            }
+        });
+    </script>
+</body>
+</html>

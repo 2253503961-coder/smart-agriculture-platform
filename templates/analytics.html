@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+
+{% block title %}数据分析 - 智慧农业监控系统{% endblock %}
+{% block page_title %}农业数据分析{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">作物生长率</p>
+                <h3 class="text-3xl font-bold mt-1">87.5%</h3>
+            </div>
+            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                <i class="fa fa-line-chart text-green-500"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="flex items-center justify-between text-sm mb-1">
+                <span>较上月</span>
+                <span class="text-green-500">+3.2%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-500 h-2 rounded-full" style="width: 87.5%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">水资源使用</p>
+                <h3 class="text-3xl font-bold mt-1">1,248 m³</h3>
+            </div>
+            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <i class="fa fa-tint text-blue-500"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="flex items-center justify-between text-sm mb-1">
+                <span>较上月</span>
+                <span class="text-red-500">-8.7%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-500 h-2 rounded-full" style="width: 65%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">预测生长率</p>
+                <h3 class="text-3xl font-bold mt-1" id="predicted-growth">{{ growth_prediction }}%</h3>
+            </div>
+            <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                <i class="fa fa-area-chart text-purple-500"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="flex items-center justify-between text-sm mb-1">
+                <span>基于SVM模型预测</span>
+                <span class="text-purple-500" id="prediction-trend">+2.1%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-purple-500 h-2 rounded-full" id="prediction-bar" style="width: {{ growth_prediction or 0 }}%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <h3 class="font-semibold text-lg mb-4 md:mb-0">环境因素对作物生长影响</h3>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-xs rounded-md bg-primary/10 text-primary font-medium">月度</button>
+                <button class="px-3 py-1 text-xs rounded-md hover:bg-gray-100 text-gray-600">季度</button>
+                <button class="px-3 py-1 text-xs rounded-md hover:bg-gray-100 text-gray-600">年度</button>
+            </div>
+        </div>
+        <div class="h-80">
+            <canvas id="growthFactorsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <h3 class="font-semibold text-lg mb-4 md:mb-0">资源消耗趋势</h3>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-xs rounded-md bg-primary/10 text-primary font-medium">月度</button>
+                <button class="px-3 py-1 text-xs rounded-md hover:bg-gray-100 text-gray-600">季度</button>
+                <button class="px-3 py-1 text-xs rounded-md hover:bg-gray-100 text-gray-600">年度</button>
+            </div>
+        </div>
+        <div class="h-80">
+            <canvas id="resourceConsumptionChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="bg-white rounded-xl p-6 card-shadow lg:col-span-2">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <h3 class="font-semibold text-lg mb-4 md:mb-0">各区域作物生长对比</h3>
+            <div class="relative">
+                <select class="pl-3 pr-8 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm appearance-none bg-white">
+                    <option>当前季度</option>
+                    <option>上一季度</option>
+                    <option>去年同期</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <i class="fa fa-chevron-down text-xs"></i>
+                </div>
+            </div>
+        </div>
+        <div class="h-80">
+            <canvas id="areaComparisonChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <h3 class="font-semibold text-lg mb-6">智能建议</h3>
+        <div class="space-y-4">
+            <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa fa-lightbulb-o text-green-500 mt-0.5"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-green-800">灌溉优化</h4>
+                        <div class="mt-2 text-sm text-green-700">
+                            <p>根据土壤湿度数据分析，建议将东区灌溉时间减少15分钟，可节省12%用水量。</p>
+                        </div>
+                        <div class="mt-3">
+                            <button class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                应用建议
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa fa-lightbulb-o text-blue-500 mt-0.5"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-blue-800">照明调整</h4>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <p>根据作物生长数据，建议将南区照明时间延长1小时，预计可提高产量8%。</p>
+                        </div>
+                        <div class="mt-3">
+                            <button class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                应用建议
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa fa-lightbulb-o text-yellow-500 mt-0.5"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-yellow-800">施肥计划</h4>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>根据作物营养分析，建议下周对西区追加钾肥，可改善作物品质。</p>
+                        </div>
+                        <div class="mt-3">
+                            <button class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                                应用建议
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 生成模拟数据
+    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const areas = ['东区', '西区', '南区', '北区', '中心区'];
+
+    // 环境因素对作物生长影响图表
+    const growthFactorsCtx = document.getElementById('growthFactorsChart').getContext('2d');
+    new Chart(growthFactorsCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: '温度影响',
+                    data: Array.from({length: 50}, () => ({
+                        x: 15 + Math.random() * 15, // 温度 15-30°C
+                        y: 50 + Math.random() * 40   // 生长率 50-90%
+                    })),
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    pointRadius: 4
+                },
+                {
+                    label: '湿度影响',
+                    data: Array.from({length: 50}, () => ({
+                        x: 30 + Math.random() * 60,  // 湿度 30-90%
+                        y: 50 + Math.random() * 40   // 生长率 50-90%
+                    })),
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    pointRadius: 4
+                },
+                {
+                    label: '土壤湿度影响',
+                    data: Array.from({length: 50}, () => ({
+                        x: 20 + Math.random() * 80,  // 土壤湿度 20-100%
+                        y: 50 + Math.random() * 40   // 生长率 50-90%
+                    })),
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: '环境因素值'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: '作物生长率 (%)'
+                    },
+                    min: 40,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // 资源消耗趋势图表
+    const resourceConsumptionCtx = document.getElementById('resourceConsumptionChart').getContext('2d');
+    new Chart(resourceConsumptionCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: '水资源 (m³)',
+                    data: Array.from({length: 12}, () => 800 + Math.random() * 600),
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '电力 (kWh)',
+                    data: Array.from({length: 12}, () => 1200 + Math.random() * 800),
+                    borderColor: 'rgba(234, 179, 8, 1)',
+                    backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '肥料 (kg)',
+                    data: Array.from({length: 12}, () => 300 + Math.random() * 200),
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // 各区域作物生长对比图表
+    const areaComparisonCtx = document.getElementById('areaComparisonChart').getContext('2d');
+    new Chart(areaComparisonCtx, {
+        type: 'bar',
+        data: {
+            labels: areas,
+            datasets: [
+                {
+                    label: '当前生长率 (%)',
+                    data: areas.map(() => 70 + Math.random() * 20),
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                },
+                {
+                    label: '目标生长率 (%)',
+                    data: areas.map(() => 85 + Math.random() * 10),
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                },
+                {
+                    label: '预测生长率 (%)',
+                    data: areas.map(() => 75 + Math.random() * 20),
+                    backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: '生长率 (%)'
+                    }
+                }
+            }
+        }
+    });
+
+    // 定时更新生长预测
+    setInterval(async () => {
+        try {
+            const response = await fetch('/api/growth-prediction');
+            const data = await response.json();
+
+            if (data.prediction) {
+                document.getElementById('predicted-growth').textContent = `${data.prediction}%`;
+                document.getElementById('prediction-bar').style.width = `${data.prediction}%`;
+
+                // 计算趋势
+                const current = parseFloat(document.getElementById('predicted-growth').textContent);
+                const previous = parseFloat(localStorage.getItem('previousPrediction') || current);
+
+                if (current > previous) {
+                    document.getElementById('prediction-trend').textContent = `+${(current - previous).toFixed(1)}%`;
+                    document.getElementById('prediction-trend').className = 'text-purple-500';
+                } else if (current < previous) {
+                    document.getElementById('prediction-trend').textContent = `${(current - previous).toFixed(1)}%`;
+                    document.getElementById('prediction-trend').className = 'text-red-500';
+                }
+
+                localStorage.setItem('previousPrediction', current);
+            }
+        } catch (error) {
+            console.error('更新生长预测失败:', error);
+        }
+    }, 10000);
+</script>
+{% endblock %}

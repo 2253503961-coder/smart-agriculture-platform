@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block title %}数据监控 - 智慧农业监控系统{% endblock %}
+{% block page_title %}环境数据监控{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl p-6 card-shadow mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <h3 class="font-semibold text-lg mb-4 md:mb-0">实时环境数据</h3>
+        <div class="flex flex-wrap gap-2">
+            <div class="relative">
+                <select class="pl-3 pr-8 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm appearance-none bg-white">
+                    <option>所有传感器</option>
+                    <option>温湿度传感器</option>
+                    <option>土壤传感器</option>
+                    <option>光照传感器</option>
+                    <option>CO2传感器</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <i class="fa fa-chevron-down text-xs"></i>
+                </div>
+            </div>
+            
+            <div class="relative">
+                <select class="pl-3 pr-8 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm appearance-none bg-white">
+                    <option>24小时</option>
+                    <option>7天</option>
+                    <option>30天</option>
+                    <option>自定义</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <i class="fa fa-chevron-down text-xs"></i>
+                </div>
+            </div>
+            
+            <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-all-300">
+                <i class="fa fa-download mr-1"></i> 导出数据
+            </button>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="h-80">
+            <h4 class="text-sm font-medium text-gray-500 mb-3">温度与湿度变化</h4>
+            <canvas id="tempHumidityChart"></canvas>
+        </div>
+        <div class="h-80">
+            <h4 class="text-sm font-medium text-gray-500 mb-3">土壤湿度与光照强度</h4>
+            <canvas id="soilLightChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <h3 class="font-semibold text-lg mb-4">CO2浓度监测</h3>
+        <div class="h-64">
+            <canvas id="co2Chart"></canvas>
+        </div>
+        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p class="text-sm text-gray-700">
+                <i class="fa fa-info-circle text-blue-500 mr-2"></i>
+                适宜作物生长的CO2浓度范围为400-1000 ppm，当前浓度正常。
+            </p>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <h3 class="font-semibold text-lg mb-4">传感器分布</h3>
+        <div class="h-64 relative">
+            <img src="https://picsum.photos/id/110/600/400" alt="农场地图" class="w-full h-full object-cover rounded-lg">
+            <!-- 传感器标记点 -->
+            <div class="absolute top-1/4 left-1/3 w-4 h-4 bg-red-500 rounded-full animate-ping"></div>
+            <div class="absolute top-1/4 left-1/3 w-4 h-4 bg-red-500 rounded-full"></div>
+            
+            <div class="absolute top-1/2 left-1/2 w-4 h-4 bg-green-500 rounded-full animate-ping"></div>
+            <div class="absolute top-1/2 left-1/2 w-4 h-4 bg-green-500 rounded-full"></div>
+            
+            <div class="absolute top-2/3 left-1/4 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
+            <div class="absolute top-2/3 left-1/4 w-4 h-4 bg-blue-500 rounded-full"></div>
+            
+            <div class="absolute top-1/3 right-1/3 w-4 h-4 bg-yellow-500 rounded-full animate-ping"></div>
+            <div class="absolute top-1/3 right-1/3 w-4 h-4 bg-yellow-500 rounded-full"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-4">
+            <div class="flex items-center text-sm">
+                <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                <span>温度传感器</span>
+            </div>
+            <div class="flex items-center text-sm">
+                <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                <span>湿度传感器</span>
+            </div>
+            <div class="flex items-center text-sm">
+                <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                <span>土壤传感器</span>
+            </div>
+            <div class="flex items-center text-sm">
+                <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                <span>光照传感器</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl p-6 card-shadow">
+        <h3 class="font-semibold text-lg mb-4">传感器状态</h3>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <span class="text-sm font-medium">温湿度传感器 #1</span>
+                </div>
+                <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">正常</span>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <span class="text-sm font-medium">土壤传感器 #2</span>
+                </div>
+                <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">正常</span>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                    <span class="text-sm font-medium">光照传感器 #3</span>
+                </div>
+                <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">信号弱</span>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <span class="text-sm font-medium">CO2传感器 #4</span>
+                </div>
+                <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">正常</span>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                <div class="flex items-center">
+                    <div class="w-2 h-2 bg-red-500 rounded-full mr-3"></div>
+                    <span class="text-sm font-medium">土壤传感器 #5</span>
+                </div>
+                <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full">离线</span>
+            </div>
+        </div>
+        <button class="w-full mt-4 py-2 text-sm text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-all-300">
+            查看所有传感器
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 获取历史数据
+    fetch('/api/historical-data')
+        .then(response => response.json())
+        .then(data => {
+            const labels = data.temperature.map(item => item.time);
+            
+            // 温度与湿度图表
+            const tempHumidityCtx = document.getElementById('tempHumidityChart').getContext('2d');
+            new Chart(tempHumidityCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '温度 (°C)',
+                            data: data.temperature.map(item => item.value),
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '湿度 (%)',
+                            data: data.humidity.map(item => item.value),
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '温度 (°C)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: '湿度 (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 土壤湿度与光照强度图表
+            const soilLightCtx = document.getElementById('soilLightChart').getContext('2d');
+            new Chart(soilLightCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '土壤湿度 (%)',
+                            data: data.soil_moisture.map(item => item.value),
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '光照强度 (lux)',
+                            data: data.light_intensity.map(item => item.value),
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '土壤湿度 (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: '光照强度 (lux)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // CO2浓度图表
+            const co2Ctx = document.getElementById('co2Chart').getContext('2d');
+            new Chart(co2Ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'CO2浓度 (ppm)',
+                            data: data.co2_level.map(item => item.value),
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                borderDash: [2, 4],
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    
+    // 定时更新数据
+    setInterval(() => {
+        fetch('/api/sensor-data')
+            .then(response => response.json())
+            .then(data => {
+                // 这里可以实现图表的实时更新逻辑
+                console.log('Updated sensor data:', data);
+            });
+    }, 5000);
+</script>
+{% endblock %}
