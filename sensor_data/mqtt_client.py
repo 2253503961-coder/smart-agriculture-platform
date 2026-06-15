@@ -48,14 +48,20 @@ class MQTTSensorClient:
     # 检查并更新 on_message 回调以匹配新版本API
     def _on_message(self, client, userdata, msg, properties=None):
         try:
-            standardized = re.sub(r'(\w+):', r'"\1":', msg.payload.decode())
-            standardized=re.sub(r'(\d+)\s+(")', r'\1, \2', standardized)
-            # 假设MQTT消息为JSON格式
-            payload = json.loads(standardized)
+            payload_str = msg.payload.decode()
+            # 先尝试标准 JSON 解析
+            try:
+                payload = json.loads(payload_str)
+            except json.JSONDecodeError:
+                # 容错：修复非标准 JSON（键名无引号）
+                payload = parse_non_standard_json(payload_str)
+                if payload is None:
+                    print("Failed to decode MQTT message as JSON")
+                    return
             self.sensor_data = payload
             print(f"Received sensor data: {payload}")
-        except json.JSONDecodeError:
-            print("Failed to decode MQTT message as JSON")
+        except UnicodeDecodeError:
+            print("Failed to decode MQTT message payload")
 
     # 检查并更新 on_disconnect 回调以匹配新版本API
     def _on_disconnect(self, client, userdata, rc, properties=None):

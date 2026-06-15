@@ -30,3 +30,26 @@ env/
 
 # Large model files (use Git LFS or download separately)
 yolov3-tiny.weights
+*.pkl
+
+# Environment & secrets
+.env
+.env.*
+*.log
+
+# Flask
+instance/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pytest
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Backup files
+*.bak
+*.orig

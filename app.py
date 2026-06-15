@@ -1,4 +1,5 @@
 # app.py
+import os
 from flask import Flask, render_template, jsonify, request, Response
 from sensor_data.processor import SensorDataProcessor
 from object_detection.detector import ObjectDetector
@@ -8,25 +9,23 @@ from analytics.predictor import GrowthPredictor
 app = Flask(__name__)
 
 # 初始化各模块
-# sensor_processor = SensorDataProcessor()
 detector = ObjectDetector()
 device_controller = DeviceController()
 growth_predictor = GrowthPredictor()
 
 sensor_processor = SensorDataProcessor(
-    mqtt_broker="192.168.109.181",  # 替换为实际MQTT服务器IP
-    mqtt_port=1883,                     # MQTT服务器端口
-    mqtt_topic="sensor/data"    # 传感器数据主题
+    mqtt_broker=os.environ.get("MQTT_BROKER", "localhost"),
+    mqtt_port=int(os.environ.get("MQTT_PORT", "1883")),
+    mqtt_topic=os.environ.get("MQTT_TOPIC", "sensor/data")
 )
 
 # 启动传感器更新线程（包含自动决策逻辑）
-# 修改传感器更新回调
 def sensor_update_callback():
-    """传感器数据更新后的回调（包含预测和决策）"""
+    """传感器数据更新后的回调（MQTT数据更新 → 生长预测 → 自动决策 → 历史归档）"""
     # 预测生长率
     growth_pred = growth_predictor.predict_growth(sensor_processor.get_current_data())
     # 更新传感器数据（包含预测结果）
-    sensor_processor.update_sensor_data_from_mqtt(growth_pred)  # 使用MQTT更新方法
+    sensor_processor.update_sensor_data_from_mqtt(growth_pred)
     # 执行自动决策
     device_controller.intelligent_decision(sensor_processor.get_current_data())
     # 更新历史数据
@@ -118,4 +117,5 @@ def mqtt_status():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug_mode, host="0.0.0.0", port=int(os.environ.get("FLASK_PORT", "5000")))

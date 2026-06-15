@@ -5,6 +5,12 @@ import joblib
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 
+# 模型文件存放在项目根目录，基于当前模块位置向上两级定位
+_MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.dirname(_MODULE_DIR)
+MODEL_PATH = os.path.join(_PROJECT_ROOT, 'svm_model.pkl')
+SCALER_PATH = os.path.join(_PROJECT_ROOT, 'scaler.pkl')
+
 
 class GrowthPredictor:
     def __init__(self):
@@ -15,9 +21,9 @@ class GrowthPredictor:
     def _load_or_train_model(self):
         """加载已保存的模型或训练新模型"""
         try:
-            if os.path.exists('svm_model.pkl') and os.path.exists('scaler.pkl'):
-                self.model = joblib.load('svm_model.pkl')
-                self.scaler = joblib.load('scaler.pkl')
+            if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
+                self.model = joblib.load(MODEL_PATH)
+                self.scaler = joblib.load(SCALER_PATH)
             else:
                 self._train_model()
         except Exception as e:
@@ -51,9 +57,9 @@ class GrowthPredictor:
         self.model = SVR(kernel='rbf', C=100, gamma=0.1, epsilon=0.1)
         self.model.fit(X_scaled, y)
 
-        # 保存模型
-        joblib.dump(self.model, 'svm_model.pkl')
-        joblib.dump(self.scaler, 'scaler.pkl')
+        # 保存模型（使用绝对路径，避免工作目录切换导致文件丢失）
+        joblib.dump(self.model, MODEL_PATH)
+        joblib.dump(self.scaler, SCALER_PATH)
 
     def predict_growth(self, sensor_data):
         """基于当前传感器数据预测生长率"""

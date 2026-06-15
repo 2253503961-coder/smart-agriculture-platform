@@ -1,8 +1,17 @@
 # object_detection/detector.py
+import os
 import cv2
 import numpy as np
 from threading import Thread, Lock
 import time
+
+# 基于模块位置定位项目根目录下的资源文件
+_MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.dirname(_MODULE_DIR)
+WEIGHTS_PATH = os.path.join(_PROJECT_ROOT, 'yolov3-tiny.weights')
+CFG_PATH = os.path.join(_PROJECT_ROOT, 'yolov3-tiny.cfg')
+NAMES_PATH = os.path.join(_PROJECT_ROOT, 'coco.names')
+
 
 class ObjectDetector:
     def __init__(self):
@@ -14,8 +23,8 @@ class ObjectDetector:
     def _load_yolo_model(self):
         """加载YOLO模型及类别"""
         try:
-            net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
-            with open("coco.names", "r") as f:
+            net = cv2.dnn.readNet(WEIGHTS_PATH, CFG_PATH)
+            with open(NAMES_PATH, "r") as f:
                 classes = [line.strip() for line in f.readlines()]
             layer_names = net.getLayerNames()
             output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]

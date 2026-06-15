@@ -243,12 +243,12 @@ Web 仪表盘访问地址：`http://127.0.0.1:5000/`。
 
 ## 注意事项
 
-- `debug=True` 在生产环境应关闭，避免性能下降和安全风险
+- 生产环境应设置环境变量 `FLASK_DEBUG=0` 关闭调试模式，避免性能下降和安全风险
 - `yolov3-tiny.weights` 约 35MB，已加入 `.gitignore`，需单独下载
-- MQTT Broker IP（`192.168.109.181`）为硬编码默认值，部署时务必修改
+- MQTT Broker 地址通过环境变量 `MQTT_BROKER` 配置（默认 `localhost`），部署时按需设置 `MQTT_BROKER`、`MQTT_PORT`、`MQTT_TOPIC`
 - SVR 预测模型在首次启动时使用合成数据自动训练，建议接入真实传感器数据后重新训练
 - 滞回阈值可在 `device_control/controller.py` 中按实际需求调整
 
 ## 许可证
 
-本项目仅供学术研究与教育用途。部署前请根据实际农业环境调整 MQTT 配置、决策阈值和模型参数。
+本项目基于 MIT License 开源。详见 [LICENSE](LICENSE) 文件。

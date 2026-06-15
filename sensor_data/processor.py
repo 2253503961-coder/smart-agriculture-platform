@@ -203,12 +203,11 @@ class SensorDataProcessor:
 
         def update_loop():
             while self.running:
-                # 从MQTT更新数据
-                self.update_sensor_data_from_mqtt()
-                # 执行回调（如自动控制逻辑）
+                # 执行回调（由 app.py 的 sensor_update_callback 统一处理：
+                # MQTT数据更新 → 生长预测 → 自动决策 → 历史数据归档）
                 if decision_callback:
                     decision_callback()
-                time.sleep(5)  # 每5秒检查一次新数据
+                time.sleep(5)  # 每5秒执行一轮
 
         Thread(target=update_loop, daemon=True).start()
 

@@ -1,1 +1,3 @@
-# from predictor import *
+from .predictor import GrowthPredictor
+
+__all__ = ['GrowthPredictor']
